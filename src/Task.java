@@ -1,7 +1,7 @@
 public class Task {
 
     private String title; // Название
-    private int taskId; // Уникальный идентификационный номер задачи
+    private int id; // Уникальный идентификационный номер задачи
     private String taskStatus; // Статус
     private String description; // Описание
 
@@ -20,12 +20,12 @@ public class Task {
         this.title = title;
     }
 
-    public int getTaskId() {
-        return taskId;
+    public int getid() {
+        return id;
     }
 
-    public void setTaskId(int taskId) {
-        this.taskId = taskId;
+    public void setid(int id) {
+        this.id = id;
     }
 
     public String getTaskStatus() {
@@ -42,5 +42,15 @@ public class Task {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "title='" + title + '\'' +
+                ", id=" + id +
+                ", taskStatus='" + taskStatus + '\'' +
+                ", description='" + description + '\'' +
+                '}';
     }
 }
