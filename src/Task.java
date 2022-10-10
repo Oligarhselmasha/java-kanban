@@ -2,13 +2,13 @@ public class Task {
 
     private String title; // Название
     private int id; // Уникальный идентификационный номер задачи
-    private String taskStatus; // Статус
+    private TaskStatus taskStatus; // Статус
     private String description; // Описание
 
 
     public Task(String title, String description) {
         this.title = title;
-        this.taskStatus = "NEW";
+        this.taskStatus = TaskStatus.NEW;
         this.description = description;
     }
 
@@ -28,12 +28,12 @@ public class Task {
         this.id = id;
     }
 
-    public String getTaskStatus() {
+    public TaskStatus getTaskStatus() {
         return taskStatus;
     }
 
-    public void setTaskStatus(String taskStatus) {
-        this.taskStatus = taskStatus;
+    public void setTaskStatus(TaskStatus status) {
+        this.taskStatus = status;
     }
 
     public String getDescription() {
