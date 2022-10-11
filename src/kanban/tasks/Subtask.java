@@ -1,3 +1,4 @@
+package kanban.tasks;
 
 public class Subtask extends Task {
 

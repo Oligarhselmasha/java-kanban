@@ -1,3 +1,10 @@
+package kanban.manager;
+
+import kanban.tasks.Epic;
+import kanban.tasks.Subtask;
+import kanban.tasks.Task;
+import kanban.tasks.TaskStatus;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +32,8 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setid(id++);
         subtask.setEpicId(epic.getid());
         subTasks.put(subtask.getid(), subtask);
+        epic.subTasksIds.add(subtask.getid()); // Добавили с эпик созданый сабтаск
+        epics.put(epic.getid(), epic); // Перезаписали хэшмапу
         return subtask;
     }
 
@@ -64,9 +73,10 @@ public class InMemoryTaskManager implements TaskManager {
     public TaskStatus checkEpicStatus(Epic epic) { // Метод по проверке статуса эпика
         if (epic.subTasksIds.isEmpty()) {
             epic.setTaskStatus(TaskStatus.NEW);
-        } else epic.setTaskStatus(TaskStatus.IN_PROGRESS);
+            return epic.getTaskStatus();
+        }
         for (int tasksId : epic.getTasksIds()) {
-            if (subTasks.get(tasksId).getTaskStatus() == TaskStatus.NEW && epic.getTaskStatus() != TaskStatus.DONE) {
+            if (subTasks.get(tasksId).getTaskStatus() == TaskStatus.NEW && epic.getTaskStatus() == TaskStatus.NEW) {
                 epic.setTaskStatus(TaskStatus.NEW);
                 continue;
             }

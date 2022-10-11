@@ -1,3 +1,7 @@
+package kanban.manager;
+
+import kanban.tasks.Task;
+
 import java.util.ArrayList;
 import java.util.List;
 

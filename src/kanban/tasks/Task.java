@@ -1,3 +1,5 @@
+package kanban.tasks;
+
 public class Task {
 
     private String title; // Название
@@ -46,7 +48,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "kanban.tasks.Task{" +
                 "title='" + title + '\'' +
                 ", id=" + id +
                 ", taskStatus='" + taskStatus + '\'' +
