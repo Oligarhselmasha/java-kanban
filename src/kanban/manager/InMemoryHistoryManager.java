@@ -2,19 +2,20 @@ package kanban.manager;
 
 import kanban.tasks.Task;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    final List<Task> lastids = new ArrayList<>();
+    final static LinkedList<Task> lastids = new LinkedList<>();
+    final static int MAX_VALUE = 10;
 
     @Override
     public void addTask(Task task) {
-        if (lastids.size() == 10) {
-            lastids.remove(0);
+        if (lastids.size() == MAX_VALUE) {
+            lastids.removeFirst();
         }
-        lastids.add(task);
+        lastids.addLast(task);
     }
 
     @Override

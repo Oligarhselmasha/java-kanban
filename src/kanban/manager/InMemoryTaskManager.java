@@ -8,13 +8,14 @@ import kanban.tasks.TaskStatus;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
     private int id = 1;
-    private final HashMap<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи
-    private final HashMap<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи
-    private final HashMap<Integer, Epic> epics = new HashMap<>(); //Здесь хранятся все эпики
+    private final Map<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи
+    private final Map<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи
+    private final Map<Integer, Epic> epics = new HashMap<>(); //Здесь хранятся все эпики
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
@@ -32,7 +33,7 @@ public class InMemoryTaskManager implements TaskManager {
         subtask.setid(id++);
         subtask.setEpicId(epic.getid());
         subTasks.put(subtask.getid(), subtask);
-        epic.subTasksIds.add(subtask.getid()); // Добавили с эпик созданый сабтаск
+        epic.setSubTasksIds(subtask.getid()); // Добавили в эпик созданый сабтаск
         epics.put(epic.getid(), epic); // Перезаписали хэшмапу
         return subtask;
     }
@@ -71,7 +72,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public TaskStatus checkEpicStatus(Epic epic) { // Метод по проверке статуса эпика
-        if (epic.subTasksIds.isEmpty()) {
+        if (epic.getSubTasksIds().isEmpty()) {
             epic.setTaskStatus(TaskStatus.NEW);
             return epic.getTaskStatus();
         }
@@ -88,7 +89,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList takeTasks() { // Получение списка всех задач
+    public ArrayList<Task> takeTasks() { // Получение списка всех задач
         ArrayList<Task> takeTasks = new ArrayList<>();
         for (Integer integer : tasks.keySet()) {
             takeTasks.add(tasks.get(integer));
@@ -97,7 +98,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList takeSubTasks() { // Получение списка всех подзадач
+    public ArrayList<Subtask> takeSubTasks() { // Получение списка всех подзадач
         ArrayList<Subtask> takeTasks = new ArrayList<>();
         for (Integer integer : subTasks.keySet()) {
             takeTasks.add(subTasks.get(integer));
@@ -106,7 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList takeEpics() { // Получение списка всех эпиков
+    public ArrayList<Epic> takeEpics() { // Получение списка всех эпиков
         ArrayList<Epic> takeTasks = new ArrayList<>();
         for (Integer integer : epics.keySet()) {
             takeTasks.add(epics.get(integer));
@@ -164,7 +165,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList takeEpicsTasks(Epic epic) { // Получение списка задач определнного эпика
+    public ArrayList<Subtask> takeEpicsTasks(Epic epic) { // Получение списка задач определнного эпика
         ArrayList<Subtask> takeTasks = new ArrayList<>();
         for (Integer tasksId : epic.getTasksIds()) {
             takeTasks.add(subTasks.get(tasksId));

@@ -30,7 +30,7 @@ public class Main {
         manager.deliteSubTasksId(5); // Удалил второй сабтаск, входящий в эпик
         System.out.println(manager.getEpics(3)); // Теперь у эпика статус NEW
 
-        for (Integer i = 6; i <= 15 ; i++) {  // Создали 10 рандомых задач
+        for (Integer i = 6; i <= 15 ; i++) {  // Здесь в обертку завернул, чтобы далее запарсить
             manager.createTask("Рандомная задача", i.toString()); // Протестировали функциональность history manager
             manager.getTasks(i);
         }

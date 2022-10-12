@@ -6,8 +6,7 @@ public class Subtask extends Task {
     private int epicId; // Айдишник эпика, к которому относится подзадача, по умолчанию 0
 
     public Subtask(Task task) { // Конструктор подзадачи, подразумеевается, что
-        super(task.getTitle(), task.getDescription()); // изначально всегда создается задача
-        this.epicId = 0;
+        super(task.getTitle(), task.getDescription()); // изначально всегда создается задача;
     }
 
     public int getEpicId() { // Получение id эпика, в который входит подзадача

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Epic extends Task {
 
-    public ArrayList<Integer> subTasksIds = new ArrayList<>();    // Айдишники подзадач, содержащиеся в эпике
+    private final ArrayList<Integer> subTasksIds = new ArrayList<>();    // Айдишники подзадач, содержащиеся в эпике
 
     public Epic(String title, String description) {
         super(title, description);
@@ -16,10 +16,6 @@ public class Epic extends Task {
 
     public void setSubTasksIds(int id) { // Добавление подзадач в эпик
         this.subTasksIds.add(id);
-    }
-
-    public void deliteAll() { // Удаление всех подзадач из эпика
-        this.subTasksIds.clear();
     }
 
     public void deliteById(Integer id) {
