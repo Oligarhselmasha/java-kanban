@@ -41,7 +41,10 @@ public class Main {
         manager.getTasks(7); // Запросил 4 задачу
         System.out.println(manager.getHistory()); // Вывелась история 1 эпик, 1 сабтаск, 4 задача
         manager.deliteEpicsId(4); // Удалил эпик
-        System.out.println(manager.getHistory()); // Удалив эпик - удалился оставшийся у него сабтаск, история пуста
+        System.out.println(manager.getHistory()); // Удалив эпик - удалился оставшийся у него сабтаск
+        manager.deliteTasksId(7); // Удалил последнюю задачу
+        System.out.println(manager.getHistory()); // История пуста))
+
 
     }
 }

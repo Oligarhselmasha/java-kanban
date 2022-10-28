@@ -11,26 +11,24 @@ public class InMemoryHistoryManager implements HistoryManager {
     private int size;
     private final Map<Integer, Node> nodeMap = new HashMap<>();
 
-
     private List<Task> getTasks() {
         List<Task> tasks = new ArrayList<>();
-        for (Node current = head; current != null; current = current.next) {
+        Node current = head;
+        while (current != null) {
             tasks.add(current.task);
+            current = current.next;
         }
         return tasks;
     }
 
-
     private void linkLast(Task task) {
         Node node = new Node(task, null, null);
-
         if (size == 0) {
             head = node;
         } else {
             tail.next = node;
             node.prev = tail;
         }
-
         tail = node;
         size++;
         nodeMap.put(task.getid(), node);
@@ -49,12 +47,14 @@ public class InMemoryHistoryManager implements HistoryManager {
             nodeMap.remove(id);
             return;
         }
-        for (Node node = head; node != null; node = node.next) {
+        Node node = head;
+        while (node != null) {
             if (node == nodeTemp) {
                 node.prev.next = node.next;
                 nodeMap.remove(id);
                 break;
             }
+            node = node.next;
         }
     }
 
@@ -69,7 +69,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     public void remove(int id) {
         if (nodeMap.containsKey(id)) {
             removeNode(id);
-        } else System.out.println("Элемента с id " + id + " в истории просмотров не найдено.");
+        } else {
+            System.out.println("Элемента с id " + id + " в истории просмотров не найдено.");
+        }
     }
 
     @Override
