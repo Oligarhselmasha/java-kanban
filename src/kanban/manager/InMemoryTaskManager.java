@@ -117,17 +117,23 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deliteTasks() { // Удаление всех задач
-        tasks.clear();
+        for (Integer id : tasks.keySet()) {
+            deliteTasksId(id);
+        }
     }
 
     @Override
     public void deliteSubTasks() { // Удаление всех поцзадач
-        subTasks.clear();
+        for (Integer id : subTasks.keySet()) {
+            deliteSubTasksId(id);
+        }
     }
 
     @Override
     public void deliteEpics() { // Удаление всех эпиков
-        epics.clear();
+        for (Integer id : epics.keySet()) {
+            deliteEpicsId(id);
+        }
     }
 
     @Override
@@ -135,8 +141,10 @@ public class InMemoryTaskManager implements TaskManager {
         for (Integer integer : tasks.keySet()) {
             if (integer == id) {
                 tasks.remove(id);
+                break;
             }
         }
+        historyManager.remove(id);
     }
 
     @Override
@@ -145,6 +153,7 @@ public class InMemoryTaskManager implements TaskManager {
         epics.get(epicId).deliteById(id);
         for (Integer integer : subTasks.keySet()) {
             if (integer == id) {
+                historyManager.remove(id);
                 subTasks.remove(integer);
                 break;
             }
@@ -155,13 +164,16 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deliteEpicsId(int id) { // Удаление эпиков по id
-
-        for (Integer integer : epics.keySet()) {
-            if (integer == id) {
-                epics.remove(id);
-                break;
-            }
+        Epic epic = epics.remove(id);
+        if(epic == null){
+            return;
         }
+        historyManager.remove(id);
+        for (int subTasksId : epic.getSubTasksIds()) {
+            subTasks.remove(subTasksId);
+            historyManager.remove(subTasksId);
+        }
+
     }
 
     @Override
@@ -195,7 +207,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Task> getHistory() { // Получение списка 10 последних задач
+    public List<Task> getHistory() { // Получение списка задач
         return historyManager.getHistory();
     }
+
+    @Override
+    public void clearHistory (){
+        historyManager.clearHistory();
+    }
+
 }

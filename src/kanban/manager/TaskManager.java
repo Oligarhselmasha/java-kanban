@@ -50,4 +50,6 @@ public interface TaskManager {
     Epic getEpics(int id);
 
     List<Task> getHistory();
+
+    public void clearHistory ();
 }

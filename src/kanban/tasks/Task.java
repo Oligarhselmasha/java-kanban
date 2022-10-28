@@ -1,5 +1,7 @@
 package kanban.tasks;
 
+import java.util.Objects;
+
 public class Task {
 
     private String title; // Название
@@ -48,11 +50,24 @@ public class Task {
 
     @Override
     public String toString() {
-        return "kanban.tasks.Task{" +
+        return "{" +
                 "title='" + title + '\'' +
                 ", id=" + id +
-                ", taskStatus='" + taskStatus + '\'' +
+                ", Status='" + taskStatus + '\'' +
                 ", description='" + description + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Task)) return false;
+        Task task = (Task) o;
+        return id == task.id && Objects.equals(getTitle(), task.getTitle()) && getTaskStatus() == task.getTaskStatus() && Objects.equals(getDescription(), task.getDescription());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getTitle(), id, getTaskStatus(), getDescription());
     }
 }

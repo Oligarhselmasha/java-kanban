@@ -18,7 +18,7 @@ public class Epic extends Task {
         this.subTasksIds.add(id);
     }
 
-    public void deliteById(Integer id) {
+    public void deliteById(Integer id) { // Метод удаляет указанные айдишники позадач, привязанные к эпику
         subTasksIds.remove(id);
     }
 
