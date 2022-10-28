@@ -34,27 +34,33 @@ public class InMemoryHistoryManager implements HistoryManager {
         nodeMap.put(task.getid(), node);
     }
 
-    private void removeNode(int id) {
+    private void removeNode(Node node) {
         size--;
-        Node nodeTemp = nodeMap.get(id);
-        if (nodeTemp == head) {
-            head = head.next;
-            nodeMap.remove(id);
-            return;
-        } else if (nodeTemp == tail) {
-            tail = tail.prev;
-            tail.next = null;
-            nodeMap.remove(id);
-            return;
-        }
-        Node node = head;
-        while (node != null) {
-            if (node == nodeTemp) {
-                node.prev.next = node.next;
-                nodeMap.remove(id);
+        int nodeId = -1; // Определяем id переданной ноды
+        for (Map.Entry<Integer, Node> integerNodeEntry : nodeMap.entrySet()) {
+            if (integerNodeEntry.getValue() == node) {
+                nodeId = integerNodeEntry.getKey();
                 break;
             }
-            node = node.next;
+        }
+        if (node == head) {
+            head = head.next;
+            nodeMap.remove(nodeId);
+            return;
+        } else if (node == tail) {
+            tail = tail.prev;
+            tail.next = null;
+            nodeMap.remove(nodeId);
+            return;
+        }
+        Node current = head;
+        while (current != null) {
+            if (current == node) {
+                current.prev.next = current.next;
+                nodeMap.remove(nodeId);
+                break;
+            }
+            current = current.next;
         }
     }
 
@@ -68,7 +74,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void remove(int id) {
         if (nodeMap.containsKey(id)) {
-            removeNode(id);
+            removeNode(nodeMap.get(id));
         } else {
             System.out.println("Элемента с id " + id + " в истории просмотров не найдено.");
         }
@@ -98,7 +104,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         private Node next;
         private Node prev;
 
-
         public Node(Task task, Node next, Node prev) {
             this.task = task;
             this.next = next;
@@ -119,7 +124,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             if (this == o) return true;
             if (!(o instanceof Node)) return false;
             Node node = (Node) o;
-            return Objects.equals(task, node.task) && Objects.equals(next, node.next) && Objects.equals(prev, node.prev);
+            return task.equals(node.task) && Objects.equals(next, node.next) && Objects.equals(prev, node.prev);
         }
 
         @Override
