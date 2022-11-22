@@ -36,13 +36,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private void removeNode(Node node) {
         size--;
-        int nodeId = -1; // Определяем id переданной ноды
-        for (Map.Entry<Integer, Node> integerNodeEntry : nodeMap.entrySet()) {
-            if (integerNodeEntry.getValue() == node) {
-                nodeId = integerNodeEntry.getKey();
-                break;
-            }
-        }
+        int nodeId = node.task.getid(); // Определяем id переданной ноды
         if (node == head) {
             head = head.next;
             nodeMap.remove(nodeId);

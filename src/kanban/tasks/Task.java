@@ -8,12 +8,22 @@ public class Task {
     private int id; // Уникальный идентификационный номер задачи
     private TaskStatus taskStatus; // Статус
     private String description; // Описание
+    private TaskType taskType;
 
 
     public Task(String title, String description) {
         this.title = title;
         this.taskStatus = TaskStatus.NEW;
         this.description = description;
+    }
+
+
+    public Task(String title, int id, TaskStatus taskStatus, String description, TaskType taskType) { // Наиболее полный конструктор для FileBackedTasksManager
+        this.title = title;
+        this.id = id;
+        this.taskStatus = taskStatus;
+        this.description = description;
+        this.taskType = taskType;
     }
 
     public String getTitle() {
@@ -50,12 +60,8 @@ public class Task {
 
     @Override
     public String toString() {
-        return "{" +
-                "title='" + title + '\'' +
-                ", id=" + id +
-                ", Status='" + taskStatus + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+        return "" + id + ", " + TaskType.TASK + ", " + title + ", " + taskStatus +
+                ", " + description;
     }
 
     @Override
@@ -69,5 +75,9 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(getTitle(), id, getTaskStatus(), getDescription());
+    }
+
+    public TaskType getTaskType() {
+        return taskType;
     }
 }

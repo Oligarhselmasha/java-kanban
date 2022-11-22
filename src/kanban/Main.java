@@ -18,7 +18,7 @@ public class Main {
         manager.createSubTask(manager.getTasks(2), manager.getEpics(4)); // id6
         manager.createTask("4 задача", "Обычная задача"); // id7
         manager.createTask("5 задача", "Обычная задача"); // id8
-        manager.clearHistory(); // Очистил историю, чтобы отбросить те случаи, когда зывыл get() для создания сабтаски
+        manager.clearHistory(); // Очистил историю, чтобы отбросить те случаи, когда взывал get() для создания сабтаски
         manager.getTasks(2); // Обратился к 2 задаче
         manager.getTasks(1); // Обратился к 1 задаче
         manager.getTasks(1); // Обратился к 1 задаче

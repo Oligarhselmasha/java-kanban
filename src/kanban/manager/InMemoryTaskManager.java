@@ -12,11 +12,11 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private int id = 1;
-    private final Map<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи
-    private final Map<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи
-    private final Map<Integer, Epic> epics = new HashMap<>(); //Здесь хранятся все эпики
-    private final HistoryManager historyManager = Managers.getDefaultHistory();
+    private int id = 1; // Изначальный id при старте - 1
+    protected final Map<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи, id - key
+    protected final Map<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи, id - key
+    protected final Map<Integer, Epic> epics = new HashMap<>(); // Здесь хранятся все эпики, id - key
+    protected final HistoryManager historyManager = Managers.getDefaultHistory(); // При создании TaskManager создается HistoryManager
 
     @Override
     public Task createTask(String title, String description) { // Создание таска
@@ -28,8 +28,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask createSubTask(Task task, Epic epic) { // Создание поздадачи
-        Subtask subtask = new Subtask(task);
+    public Subtask createSubTask(Task task, Epic epic) { // Создание поздадачи. Сабтаск возможно создать только на основе
+        Subtask subtask = new Subtask(task); // имеющегося таска. Так же он не может существовать в отрыве от Эпика
         subtask.setid(id++);
         subtask.setEpicId(epic.getid());
         subTasks.put(subtask.getid(), subtask);
@@ -39,16 +39,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic createEpic(String title, String description) { //Создание Эпика
-        Epic epic = new Epic(title, description);
-        epic.setid(id++);
+    public Epic createEpic(String title, String description) { // Создание Эпика - задача, которая может содержать в себе
+        Epic epic = new Epic(title, description); // подзадачи. Выполнение эпика возможно только при выполнении входящих
+        epic.setid(id++); // в него подзадач
         epic.setDescription(description);
         epics.put(epic.getid(), epic);
         return epic;
     }
 
     @Override
-    public void add(Epic epic, Subtask subtask) { // Добавление в эпик подзадач
+    public void add(Epic epic, Subtask subtask) { // Добавление в ЭПИК подзадач
         subtask.setEpicId(epic.getid()); // Сообщаем к какому эпику относится подзадача
         epic.setSubTasksIds(subtask.getid()); // Добавление подзадачи в эпик
         TaskStatus status = checkEpicStatus(epic); // Проверка статуса
@@ -63,22 +63,22 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void updateSubTask(Subtask subtask, TaskStatus status) { // Обновляем статус подзадачи
-        subtask.setTaskStatus(status);
-        subTasks.put(subtask.getid(), subtask);
-        TaskStatus epicStatus = checkEpicStatus(epics.get(subtask.getEpicId())); // Проверка статуса эпика, после добавления
+    public void updateSubTask(Subtask subtask, TaskStatus status) { // Обновление статуса подзадачи
+        subtask.setTaskStatus(status); // Обновляем
+        subTasks.put(subtask.getid(), subtask); // Перезаписываем
+        TaskStatus epicStatus = checkEpicStatus(epics.get(subtask.getEpicId())); // Проверка статуса эпика, обновления
         epics.get(subtask.getEpicId()).setTaskStatus(epicStatus); // Установка статуса эпика
     }
 
     @Override
-    public TaskStatus checkEpicStatus(Epic epic) { // Метод по проверке статуса эпика
-        if (epic.getSubTasksIds().isEmpty()) {
+    public TaskStatus checkEpicStatus(Epic epic) { // Метод по проверке статуса эпика (К ПЕРЕРАБОТКЕ, лишние действия)
+        if (epic.getSubTasksIds().isEmpty()) { // Если в эпике нет задач, то сразу ставим статус NEW
             epic.setTaskStatus(TaskStatus.NEW);
             return epic.getTaskStatus();
         }
-        for (int tasksId : epic.getTasksIds()) {
+        for (int tasksId : epic.getTasksIds()) { // Проверяем все сабтаски, входящие в эпик
             if (subTasks.get(tasksId).getTaskStatus() == TaskStatus.NEW && epic.getTaskStatus() == TaskStatus.NEW) {
-                epic.setTaskStatus(TaskStatus.NEW);
+                epic.setTaskStatus(TaskStatus.NEW); // Если все сабтаски имеют статус NEW, то и у эпика статус NEW
                 continue;
             }
             if (subTasks.get(tasksId).getTaskStatus() == TaskStatus.DONE && epic.getTaskStatus() != TaskStatus.NEW) {
@@ -173,7 +173,6 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.remove(subTasksId);
             historyManager.remove(subTasksId);
         }
-
     }
 
     @Override
@@ -188,7 +187,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Task getTasks(int id) { // Получение таска по id
         Task task = tasks.get(id);
-        historyManager.addTask(task); // Здесь и далее метод добавления таска в список
+        historyManager.addTask(task); // Здесь и далее метод добавления таска в линкед список менеджера истории
         return task;
     }
 
@@ -216,4 +215,7 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.clearHistory();
     }
 
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
 }
