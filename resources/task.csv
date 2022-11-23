@@ -1,0 +1,8 @@
+id, type, name, status, description, epic
+1, TASK, 1 задача, NEW, Обычная задача
+2, TASK, 2 задача, NEW, Обычная задача
+4, SUBTASK, 1 задача, NEW, Обычная задача, 3
+5, SUBTASK, 2 задача, NEW, Обычная задача, 3
+3, EPIC, 1 эпик, NEW, 1 Эпик
+
+1, 4, 3, 

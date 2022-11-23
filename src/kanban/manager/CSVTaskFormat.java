@@ -11,45 +11,39 @@ public class CSVTaskFormat {
         return task.toString();
     }
 
-    public static String toString(HistoryManager historyManager) {
-        StringBuilder sb = new StringBuilder();
+    public static String toString(HistoryManager historyManager) { // Преобразует историю запросов в строку
+        StringBuilder stringBuilder = new StringBuilder();
         for (Task task : historyManager.getHistory()) {
-            sb.append(task.getid()).append(", ");
+            stringBuilder.append(task.getid()).append(", ");
         }
-        sb.delete(sb.length() - 1 , sb.length());
-        return sb.toString();
+        return stringBuilder.toString();
     }
 
-    public static Task fromString(String value) {
-        final String[] values = value.split(",");
+    public static Task fromString(String value) { // Преобразует строку в задачу
+        final String[] values = value.split(", ");
         final int id = Integer.parseInt(values[0]);
         final TaskType type = TaskType.valueOf(values[1]);
-        final String name = values [2];
-        final TaskStatus status = TaskStatus.valueOf(values [3]);
-        final String description = values [4];
-        if (type == TaskType.SUBTASK){
+        final String name = values[2];
+        final TaskStatus status = TaskStatus.valueOf(values[3]);
+        final String description = values[4];
+        if (type == TaskType.SUBTASK) {
             final int epicId = Integer.parseInt(values[5]);
             return new Subtask(name, id, status, description, type, epicId);
-        }
-        if (type == TaskType.TASK){
+        } if (type == TaskType.TASK) {
             return new Task(name, id, status, description, type);
-        } else if (type == TaskType.EPIC) {
-            Epic task = new Epic(name, id, status, description, type);
-            task.setSubTasksIds();
-            return task;
         }
-        return null;
+        else return new Epic(name, id, status, description, type);
     }
 
 
-    public static List<Integer> historyFromString(String value){
-        List<Integer> list = new ArrayList<>();
-        final String[] values = value.split(",");
-        for (String s : values) {
-            int id = Integer.parseInt(s);
-            list.add(id);
+        public static List<Integer> historyFromString (String history){
+            List<Integer> list = new ArrayList<>();
+            final String[] values = history.split(",");
+            for (String value : values) {
+                int id = Integer.parseInt(value);
+                list.add(id);
+            }
+            return list;
         }
-        return list;
     }
 
-}

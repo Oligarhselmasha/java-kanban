@@ -5,7 +5,6 @@ import kanban.tasks.Subtask;
 import kanban.tasks.Task;
 import kanban.tasks.TaskStatus;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
@@ -23,11 +22,11 @@ public interface TaskManager {
 
     TaskStatus checkEpicStatus(Epic epic);
 
-    ArrayList takeTasks();
+    List takeTasks();
 
-    ArrayList takeSubTasks();
+    List takeSubTasks();
 
-    ArrayList takeEpics();
+    List takeEpics();
 
     void deliteTasks();
 
@@ -41,7 +40,7 @@ public interface TaskManager {
 
     void deliteEpicsId(int id);
 
-    ArrayList takeEpicsTasks(Epic epic);
+    List takeEpicsTasks(Epic epic);
 
     Task getTasks(int id);
 

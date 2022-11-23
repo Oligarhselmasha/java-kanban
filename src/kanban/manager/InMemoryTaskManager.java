@@ -12,11 +12,11 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private int id = 1; // Изначальный id при старте - 1
-    protected final Map<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи, id - key
-    protected final Map<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи, id - key
-    protected final Map<Integer, Epic> epics = new HashMap<>(); // Здесь хранятся все эпики, id - key
-    protected final HistoryManager historyManager = Managers.getDefaultHistory(); // При создании TaskManager создается HistoryManager
+    protected static int id = 1; // Изначальный id при старте - 1
+    protected static final Map<Integer, Task> tasks = new HashMap<>(); // Здесь хранятся все задачи, id - key
+    protected static final Map<Integer, Subtask> subTasks = new HashMap<>(); // Здесь хранятся все подзадачи, id - key
+    protected static final Map<Integer, Epic> epics = new HashMap<>(); // Здесь хранятся все эпики, id - key
+    protected static final HistoryManager historyManager = Managers.getDefaultHistory(); // При создании TaskManager создается HistoryManager
 
     @Override
     public Task createTask(String title, String description) { // Создание таска
@@ -89,7 +89,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Task> takeTasks() { // Получение списка всех задач
+    public List<Task> takeTasks() { // Получение списка всех задач
         ArrayList<Task> takeTasks = new ArrayList<>();
         for (Integer integer : tasks.keySet()) {
             takeTasks.add(tasks.get(integer));
@@ -98,7 +98,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> takeSubTasks() { // Получение списка всех подзадач
+    public List<Subtask> takeSubTasks() { // Получение списка всех подзадач
         ArrayList<Subtask> takeTasks = new ArrayList<>();
         for (Integer integer : subTasks.keySet()) {
             takeTasks.add(subTasks.get(integer));
@@ -107,7 +107,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Epic> takeEpics() { // Получение списка всех эпиков
+    public List<Epic> takeEpics() { // Получение списка всех эпиков
         ArrayList<Epic> takeTasks = new ArrayList<>();
         for (Integer integer : epics.keySet()) {
             takeTasks.add(epics.get(integer));
@@ -176,7 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public ArrayList<Subtask> takeEpicsTasks(Epic epic) { // Получение списка задач определнного эпика
+    public List<Subtask> takeEpicsTasks(Epic epic) { // Получение списка задач определнного эпика
         ArrayList<Subtask> takeTasks = new ArrayList<>();
         for (Integer tasksId : epic.getTasksIds()) {
             takeTasks.add(subTasks.get(tasksId));
@@ -215,7 +215,11 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager.clearHistory();
     }
 
-    public HistoryManager getHistoryManager() {
+    public static HistoryManager getHistoryManager() {
         return historyManager;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }
