@@ -25,7 +25,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         fileBackedTasksManager.createEpic("1 эпик", "1 Эпик"); // id3
         fileBackedTasksManager.createSubTask(fileBackedTasksManager.getTasks(1), fileBackedTasksManager.getEpics(3)); // id4
         fileBackedTasksManager.createSubTask(fileBackedTasksManager.getTasks(2), fileBackedTasksManager.getEpics(3)); // id5
-        fileBackedTasksManager.clearHistory();
+        fileBackedTasksManager.clearHistory(); // Запускаем чтобы очистить из памяти запросы для создания сабтаски
         fileBackedTasksManager.getTasks(1);
         fileBackedTasksManager.getSubTasks(4);
         fileBackedTasksManager.getEpics(3);
@@ -37,14 +37,14 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         System.out.println(fileBackedTasksManager1.getHistory()); // Соответсвует восстановленному
     }
 
-    public static FileBackedTasksManager loadFromFile(File file) {
+    public static FileBackedTasksManager loadFromFile(File file) { // Получаем информацию из файла
         final FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            reader.readLine();
-            while (reader.ready()) {
-                int generatedId = 0;
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) { // Создали ридер
+            reader.readLine(); // Считали первую "ненужную" строчку
+            while (reader.ready()) { // Пока ридер готов...
+                int generatedId = 0; // Значение id в менеджере
                 String line = reader.readLine();
-                if (!line.isEmpty()) { // Наполняем мапы тасками, сабтасками и эпиками
+                if (!line.isEmpty()) { // ...наполняем мапы тасками, сабтасками и эпиками
                     Task task = CSVTaskFormat.fromString(line);
                     addTask(task);
                     if (task.getid() > generatedId) {
@@ -58,13 +58,13 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 int epicId = subTasks.get(id).getEpicId();
                 epics.get(epicId).setSubTasksIds(id); // Добавляем эпик в сабтаску
             }
-            reader.readLine();
+            reader.readLine(); // Считали пустую строку
 
-            while (reader.ready()) {
+            while (reader.ready()) { // Пока ридер готов...
                 String line = reader.readLine();
                 if (!line.isEmpty()) {
-                    List<Integer> list = CSVTaskFormat.historyFromString(line);
-                    for (Integer id : list) {
+                    List<Integer> list = CSVTaskFormat.historyFromString(line); // Получили лист из строки с историей
+                    for (Integer id : list) { // Поочередно добавляем каждую задачу в хистори менеджер
                         if (tasks.containsKey(id)) {
                             getHistoryManager().addTask(tasks.get(id));
                         }
@@ -78,7 +78,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Критическая ошибка");
         }
         return fileBackedTasksManager;
     }
@@ -103,7 +103,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         }
     }
 
-    public static void addTask(Task task) {
+    public static void addTask(Task task) { // Наполняем мапы задачами, полученными из файла
         switch (task.getTaskType()) {
             case TASK:
                 tasks.put(task.getid(), task);
