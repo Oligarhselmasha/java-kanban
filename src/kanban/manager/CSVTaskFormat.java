@@ -2,6 +2,7 @@ package kanban.manager;
 
 import kanban.tasks.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +27,16 @@ public class CSVTaskFormat {
         final String name = values[2];
         final TaskStatus status = TaskStatus.valueOf(values[3]);
         final String description = values[4];
+        final LocalDateTime startTime = LocalDateTime.parse(values[5]);
+        final long duration = Long.parseLong(values[6]);
+        final LocalDateTime endTime = LocalDateTime.parse(values[7]);
         if (type == TaskType.SUBTASK) {
-            final int epicId = Integer.parseInt(values[5]);
-            return new Subtask(name, id, status, description, type, epicId);
+            final int epicId = Integer.parseInt(values[8]);
+            return new Subtask(name, id, status, description, type, epicId, startTime, duration);
         } if (type == TaskType.TASK) {
-            return new Task(name, id, status, description, type);
+            return new Task(name, id, status, description, type, startTime, duration);
         }
-        else return new Epic(name, id, status, description, type);
+        else return new Epic(name, id, status, description, type, startTime, duration);
     }
 
 

@@ -1,5 +1,6 @@
 package kanban.tasks;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class Task {
@@ -9,6 +10,9 @@ public class Task {
     private TaskStatus taskStatus; // Статус
     private String description; // Описание
     private TaskType taskType;
+    private LocalDateTime startTime; //  Начало задачи
+    private LocalDateTime endTime; //  Начало задачи
+    private long duration; // Продолжительность задачи в минутах
 
 
     public Task(String title, String description) {
@@ -17,13 +21,27 @@ public class Task {
         this.description = description;
     }
 
+    public Task(String title, String description, LocalDateTime startTime, long duration) {
+        this.title = title;
+        this.taskStatus = TaskStatus.NEW;
+        this.description = description;
+        this.startTime = startTime;
+        this.taskType = TaskType.TASK;
+        this.endTime = setEndTime(startTime, duration);
+        this.duration = duration;
+    }
 
-    public Task(String title, int id, TaskStatus taskStatus, String description, TaskType taskType) { // Наиболее полный конструктор для FileBackedTasksManager
+
+    public Task(String title, int id, TaskStatus taskStatus, String description, TaskType taskType,
+                LocalDateTime startTime, long duration) { // Наиболее полный конструктор
         this.title = title;
         this.id = id;
         this.taskStatus = taskStatus;
         this.description = description;
         this.taskType = taskType;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.endTime = setEndTime(startTime, duration);
     }
 
     public String getTitle() {
@@ -61,7 +79,7 @@ public class Task {
     @Override
     public String toString() {
         return "" + id + ", " + TaskType.TASK + ", " + title + ", " + taskStatus +
-                ", " + description;
+                ", " + description + ", " + startTime+ ", " + duration+ ", " + endTime;
     }
 
     @Override
@@ -79,5 +97,32 @@ public class Task {
 
     public TaskType getTaskType() {
         return taskType;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setTaskType(TaskType taskType) {
+        this.taskType = taskType;
+    }
+    public LocalDateTime setEndTime (LocalDateTime startTime, long duration){
+        return startTime.plusMinutes(duration);
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 }

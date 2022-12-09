@@ -5,10 +5,15 @@ import kanban.tasks.Subtask;
 import kanban.tasks.Task;
 import kanban.tasks.TaskStatus;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface TaskManager {
-    Task createTask(String title, String description);
+//    Task createTask(String title, String description);
+
+    Task createTask(String title, String description, LocalDateTime startTime, long duration);
 
     Subtask createSubTask(Task task, Epic epic);
 
@@ -50,5 +55,11 @@ public interface TaskManager {
 
     List<Task> getHistory();
 
-    public void clearHistory ();
+    void clearHistory ();
+
+    void setId(int id);
+
+    void checkEpicTime(Epic epic);
+    Set<Task> getPrioritizedTasks();
+
 }
