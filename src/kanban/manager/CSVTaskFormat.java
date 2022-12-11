@@ -21,33 +21,39 @@ public class CSVTaskFormat {
     }
 
     public static Task fromString(String value) { // Преобразует строку в задачу
-        final String[] values = value.split(", ");
-        final int id = Integer.parseInt(values[0]);
-        final TaskType type = TaskType.valueOf(values[1]);
-        final String name = values[2];
-        final TaskStatus status = TaskStatus.valueOf(values[3]);
-        final String description = values[4];
-        final LocalDateTime startTime = LocalDateTime.parse(values[5]);
-        final long duration = Long.parseLong(values[6]);
-        final LocalDateTime endTime = LocalDateTime.parse(values[7]);
-        if (type == TaskType.SUBTASK) {
-            final int epicId = Integer.parseInt(values[8]);
-            return new Subtask(name, id, status, description, type, epicId, startTime, duration);
-        } if (type == TaskType.TASK) {
-            return new Task(name, id, status, description, type, startTime, duration);
-        }
-        else return new Epic(name, id, status, description, type, startTime, duration);
-    }
-
-
-        public static List<Integer> historyFromString (String history){
-            List<Integer> list = new ArrayList<>();
-            final String[] values = history.split(",");
-            for (String value : values) {
-                int id = Integer.parseInt(value);
-                list.add(id);
+        try {
+            final String[] values = value.split(", ");
+            final int id = Integer.parseInt(values[0]);
+            final TaskType type = TaskType.valueOf(values[1]);
+            final String name = values[2];
+            final TaskStatus status = TaskStatus.valueOf(values[3]);
+            final String description = values[4];
+            final LocalDateTime startTime = LocalDateTime.parse(values[5]);
+            final long duration = Long.parseLong(values[6]);
+            switch (type) {
+                case SUBTASK:
+                    final int epicId = Integer.parseInt(values[8]);
+                    return new Subtask(name, id, status, description, type, epicId, startTime, duration);
+                case TASK:
+                    return new Task(name, id, status, description, type, startTime, duration);
+                case EPIC:
+                    return new Epic(name, id, status, description, type, startTime, duration);
+                default:
+                    throw new IllegalStateException("Полученный объект не является объектом менеджера");
             }
-            return list;
+        } catch (IllegalStateException exception) {
+            System.out.println(exception.getMessage());
+            return null;
         }
     }
+    public static List<Integer> historyFromString(String history) {
+        List<Integer> list = new ArrayList<>();
+        final String[] values = history.split(",");
+        for (String value : values) {
+            int id = Integer.parseInt(value);
+            list.add(id);
+        }
+        return list;
+    }
+}
 

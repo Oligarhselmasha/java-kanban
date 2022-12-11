@@ -6,6 +6,7 @@ import kanban.tasks.Task;
 import kanban.tasks.TaskStatus;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -19,30 +20,27 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
     public FileBackedTasksManager loadFromFile(File file) { // Получаем информацию из файла
         final FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) { // Создали ридер
-            reader.readLine(); // Считали первую "ненужную" строчку
-            while (reader.ready()) { // Пока ридер готов...
-                int generatedId = 0; // Значение id в менеджере
-                String line = reader.readLine();
-                if (!line.isEmpty()) { // ...наполняем мапы тасками, сабтасками и эпиками
-                    Task task = CSVTaskFormat.fromString(line);
+        try { // Создали ридер
+            List<String> tasksAndHistory = Files.readAllLines(file.toPath());
+            for (int i = 1; i <= tasksAndHistory.size(); i++) {
+                int generatedId = 0;
+                if (!tasksAndHistory.get(i).isEmpty()) {
+                    Task task = CSVTaskFormat.fromString(tasksAndHistory.get(i));
                     addTask(task);
                     if (task.getid() > generatedId) {
                         generatedId = task.getid();
                         super.setId(generatedId);
                     }
-                } else break;
-            }
-            for (Integer id : subTasks.keySet()) { // Узнаем у каждого сабтаска к какому эпику он относится
-                int epicId = subTasks.get(id).getEpicId();
-                epics.get(epicId).setSubTasksIds(id); // Добавляем эпик в сабтаску
-            }
-            reader.readLine(); // Считали пустую строку
-
-            while (reader.ready()) { // Пока ридер готов...
-                String line = reader.readLine();
-                if (!line.isEmpty()) {
-                    List<Integer> list = CSVTaskFormat.historyFromString(line); // Получили лист из строки с историей
+                    continue;
+                }
+                for (Integer id : subTasks.keySet()) { // Узнаем у каждого сабтаска к какому эпику он относится
+                    int epicId = subTasks.get(id).getEpicId();
+                    epics.get(epicId).setSubTasksIds(id); // Добавляем эпик в сабтаску
+                }
+                if ((i + 1) == tasksAndHistory.size()) {
+                    break;
+                } else {
+                    List<Integer> list = CSVTaskFormat.historyFromString(tasksAndHistory.get(i + 1)); // Получили лист из строки с историей
                     for (Integer id : list) { // Поочередно добавляем каждую задачу в хистори менеджер
                         if (tasks.containsKey(id)) {
                             getHistoryManager().addTask(tasks.get(id));
@@ -137,26 +135,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public TaskStatus checkEpicStatus(Epic epic) {
-        return super.checkEpicStatus(epic);
-    }
-
-    @Override
-    public List<Task> takeTasks() {
-        return super.takeTasks();
-    }
-
-    @Override
-    public List<Subtask> takeSubTasks() {
-        return super.takeSubTasks();
-    }
-
-    @Override
-    public List<Epic> takeEpics() {
-        return super.takeEpics();
-    }
-
-    @Override
     public void deliteTasks() {
         super.deliteTasks();
         save();
@@ -193,11 +171,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public List<Subtask> takeEpicsTasks(Epic epic) {
-        return super.takeEpicsTasks(epic);
-    }
-
-    @Override
     public Task getTasks(int id) {
         Task task = super.getTasks(id);
         save();
@@ -219,18 +192,8 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public List<Task> getHistory() {
-        return super.getHistory();
-    }
-
-    @Override
     public void clearHistory() {
         super.clearHistory();
         save();
-    }
-
-    @Override
-    public void setId(int id) {
-        super.setId(id);
     }
 }
