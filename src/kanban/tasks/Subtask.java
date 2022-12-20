@@ -18,7 +18,6 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-
     public int getEpicId() { // Получение id эпика, в который входит подзадача
         return epicId;
     }
@@ -30,7 +29,8 @@ public class Subtask extends Task {
     @Override
     public String toString() {
         return "" + super.getid() + ", " + TaskType.SUBTASK + ", " + super.getTitle() + ", " + super.getTaskStatus() +
-                ", " + super.getDescription() + ", " + super.getStartTime() + ", " + super.getDuration() + ", " + super.getEndTime() + ", " + epicId;
+                ", " + super.getDescription() + ", " + super.getStartTime() + ", " +
+                super.getDuration() + ", " + super.getEndTime() + ", " + epicId;
     }
 
     @Override

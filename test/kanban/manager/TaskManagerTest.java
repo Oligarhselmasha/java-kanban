@@ -4,6 +4,7 @@ import kanban.tasks.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +32,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void emptyEpic() { // Проверяет статус эпика, если он пустой
+    void emptyEpic() throws IOException, InterruptedException { // Проверяет статус эпика, если он пустой
         taskManager.deliteSubTasksId(4); // Удаляем сабтаски эпика
         taskManager.deliteSubTasksId(5);
         String status = epic.getTaskStatus().toString();
@@ -45,7 +46,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void allInDoneEpic() { // Проверяет статус эпика у которого внутри все сабтаски имеют статус DONE
+    void allInDoneEpic() throws IOException, InterruptedException { // Проверяет статус эпика у которого внутри все сабтаски имеют статус DONE
         taskManager.updateSubTask(subtask1, TaskStatus.DONE);
         taskManager.updateSubTask(subtask2, TaskStatus.DONE);
         String status = epic.getTaskStatus().toString();
@@ -53,14 +54,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void allInDoneAndNewEpic() { // Проверяет статус эпика у которого внутри все сабтаски имеют статус NEW и DONE
+    void allInDoneAndNewEpic() throws IOException, InterruptedException { // Проверяет статус эпика у которого внутри все сабтаски имеют статус NEW и DONE
         taskManager.updateSubTask(subtask2, TaskStatus.DONE);
         String status = epic.getTaskStatus().toString();
         assertEquals("IN_PROGRESS", status, "Статус не IN_PROGRESS!");
     }
 
     @Test
-    void allInINPROGRESSEpic() { // Проверяет статус эпика у которого внутри все сабтаски имеют статус IN_PROGRESS
+    void allInINPROGRESSEpic() throws IOException, InterruptedException { // Проверяет статус эпика у которого внутри все сабтаски имеют статус IN_PROGRESS
         taskManager.updateSubTask(subtask1, TaskStatus.IN_PROGRESS);
         taskManager.updateSubTask(subtask2, TaskStatus.IN_PROGRESS);
         String status = epic.getTaskStatus().toString();
@@ -68,7 +69,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createTask() { // Тест на проверку создания задачи
+    void createTask() throws IOException, InterruptedException { // Тест на проверку создания задачи
         Task taskNew = taskManager.createTask("Очередная задача", "Задача",
                 LocalDateTime.of(2022, 12, 10, 12, 0), 30);
         Task savedTask = taskManager.getTasks(taskNew.getid());
@@ -113,21 +114,21 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void updateTask() { // Проверка обновления задачи
+    void updateTask() throws IOException, InterruptedException { // Проверка обновления задачи
         taskManager.updateTask(task1, TaskStatus.DONE);
         String status = task1.getTaskStatus().toString();
         assertEquals("DONE", status, "Статус не обновился");
     }
 
     @Test
-    void updateSubTask() { // Проверка обновления подзадачи
+    void updateSubTask() throws IOException, InterruptedException { // Проверка обновления подзадачи
         taskManager.updateSubTask(subtask1, TaskStatus.IN_PROGRESS);
         String status = subtask1.getTaskStatus().toString();
         assertEquals("IN_PROGRESS", status, "Статус не обновился");
     }
 
     @Test
-    void checkEpicStatus() { // Метод по проверку статуса эпика
+    void checkEpicStatus() throws IOException, InterruptedException { // Метод по проверку статуса эпика
         taskManager.updateSubTask(subtask1, TaskStatus.IN_PROGRESS);
         String status = taskManager.checkEpicStatus(epic).toString();
         assertEquals("IN_PROGRESS", status, "Статус не обновился");
@@ -159,14 +160,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void deliteTasks() {
+    void deliteTasks() throws IOException, InterruptedException {
         taskManager.deliteTasks();
         List<Task> tasks = taskManager.takeTasks();
         assertEquals(0, tasks.size(), "Таски не удалились");
     }
 
     @Test
-    void deliteSubTasks() {
+    void deliteSubTasks() throws IOException, InterruptedException {
         taskManager.deliteSubTasks();
         List<Subtask> subTasks = taskManager.takeSubTasks();
         assertEquals(0, subTasks.size(), "Сабтаски не удалились");
@@ -176,7 +177,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void deliteEpics() {
+    void deliteEpics() throws IOException, InterruptedException {
         taskManager.deliteEpics();
         List<Epic> epics = taskManager.takeEpics();
         assertEquals(0, epics.size(), "Эпики не удалились");
@@ -185,14 +186,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void deliteTasksWrongId() { // Удаление таски с несуществующим id
         int id = 777;
-        final IllegalStateException exception = assertThrows(IllegalStateException.class,
+        final RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> taskManager.deliteTasksId(id));
-        assertEquals(exception.getMessage(), "Недопустимый id.");
+        assertEquals(exception.getMessage(), "Невозможно удалить задачу с id 777! В менеджере есть задачи со следующими id:");
     }
 
 
     @Test
-    void deliteSubTasksId() {
+    void deliteSubTasksId() throws IOException, InterruptedException {
         int id = 4;
         taskManager.deliteSubTasksId(id);
         assertEquals(1, taskManager.takeSubTasks().size());
@@ -215,7 +216,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getTasks() {
+    void getTasks() throws IOException, InterruptedException {
         Task taskNew = taskManager.getTasks(1);
         assertEquals(task1, taskNew, "Таск не сохранен в менеджере");
 
@@ -236,7 +237,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getHistory() {
+    void getHistory() throws IOException, InterruptedException {
         taskManager.getSubTasks(4);
         taskManager.getTasks(1);
         taskManager.getEpics(3);
@@ -247,7 +248,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void clearHistory() {
+    void clearHistory() throws IOException, InterruptedException {
         taskManager.getSubTasks(4);
         taskManager.getTasks(1);
         taskManager.getEpics(3);

@@ -5,6 +5,7 @@ import kanban.tasks.Subtask;
 import kanban.tasks.Task;
 import kanban.tasks.TaskStatus;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -21,33 +22,33 @@ public interface TaskManager {
 
     void add(Epic epic, Subtask subtask);
 
-    void updateTask(Task task, TaskStatus status);
+    void updateTask(Task task, TaskStatus status) throws IOException, InterruptedException;
 
-    void updateSubTask(Subtask subtask, TaskStatus status);
+    void updateSubTask(Subtask subtask, TaskStatus status) throws IOException, InterruptedException;
 
     TaskStatus checkEpicStatus(Epic epic);
 
-    List takeTasks();
+    List<Task> takeTasks();
 
-    List takeSubTasks();
+    List<Subtask> takeSubTasks();
 
-    List takeEpics();
+    List<Epic> takeEpics();
 
-    void deliteTasks();
+    void deliteTasks() throws IOException, InterruptedException;
 
-    void deliteSubTasks();
+    void deliteSubTasks() throws IOException, InterruptedException;
 
-    void deliteEpics();
+    void deliteEpics() throws IOException, InterruptedException;
 
-    void deliteTasksId(int id);
+    void deliteTasksId(int id) throws IOException, InterruptedException;
 
-    void deliteSubTasksId(int id);
+    void deliteSubTasksId(int id) throws IOException, InterruptedException;
 
-    void deliteEpicsId(int id);
+    void deliteEpicsId(int id) throws IOException, InterruptedException;
 
     List takeEpicsTasks(Epic epic);
 
-    Task getTasks(int id);
+    Task getTasks(int id) throws IOException, InterruptedException;
 
     Subtask getSubTasks(int id);
 
@@ -61,5 +62,11 @@ public interface TaskManager {
 
     void checkEpicTime(Epic epic);
     Set<Task> getPrioritizedTasks();
+
+    public void addTask(Task task) throws IOException, InterruptedException;
+
+    List<Subtask> takeEpicsTasksById(int id);
+
+
 
 }

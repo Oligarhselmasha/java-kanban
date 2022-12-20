@@ -7,7 +7,6 @@ import java.util.Objects;
 public class Epic extends Task {
 
     private final ArrayList<Integer> subTasksIds = new ArrayList<>();    // Айдишники подзадач, содержащиеся в эпике
-    private LocalDateTime endTime;
 
     public Epic(String title, String description) {
         super(title, description);
@@ -45,9 +44,10 @@ public class Epic extends Task {
 
     @Override
     public String toString() {
-        return "" + super.getid() + ", " + TaskType.EPIC + ", " + super.getTitle() + ", " + super.getTaskStatus() +
-                ", " + super.getDescription()  + ", " + super.getStartTime() + ", " + super.getDuration() + ", " +
-                getEndTime();
+            return "" + super.getid() + ", " + TaskType.EPIC + ", " + super.getTitle() + ", " + super.getTaskStatus() +
+                    ", " + super.getDescription()  + ", " + super.getStartTime() +
+                    ", " + super.getDuration() + ", " +
+                    getEndTime();
     }
 
     @Override
@@ -65,11 +65,11 @@ public class Epic extends Task {
     }
 
     public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+        super.setEndTime(endTime);
     }
 
     @Override
     public LocalDateTime getEndTime() {
-        return endTime;
+        return super.getEndTime();
     }
 }

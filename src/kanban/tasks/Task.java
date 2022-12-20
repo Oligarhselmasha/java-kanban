@@ -11,9 +11,8 @@ public class Task {
     private String description; // Описание
     private TaskType taskType;
     private LocalDateTime startTime; //  Начало задачи
-    private LocalDateTime endTime; //  Начало задачи
+    protected LocalDateTime endTime; //  Начало задачи
     private long duration; // Продолжительность задачи в минутах
-
 
     public Task(String title, String description) {
         this.title = title;
@@ -29,6 +28,7 @@ public class Task {
         this.taskType = TaskType.TASK;
         this.endTime = setEndTime(startTime, duration);
         this.duration = duration;
+//        this.format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     }
 
 
@@ -112,6 +112,10 @@ public class Task {
     }
     public LocalDateTime setEndTime (LocalDateTime startTime, long duration){
         return startTime.plusMinutes(duration);
+    }
+
+    public void setEndTime (LocalDateTime endTime){
+        this.endTime = endTime;
     }
 
     public LocalDateTime getEndTime() {

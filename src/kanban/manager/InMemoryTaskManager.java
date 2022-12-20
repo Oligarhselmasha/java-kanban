@@ -5,6 +5,7 @@ import kanban.tasks.Subtask;
 import kanban.tasks.Task;
 import kanban.tasks.TaskStatus;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -26,14 +27,17 @@ public class InMemoryTaskManager implements TaskManager {
             for (Task taskSorted : priorTasks) {
                 if (task.getStartTime().isBefore(taskSorted.getStartTime()) &&
                         task.getEndTime().isAfter(taskSorted.getStartTime())) {
-                    throw new IllegalStateException("Задачи пересекаются по времени, не удалось создать задачу!");
+                    throw new IllegalStateException("Задача пересекается по времени с задачей с id "
+                            + taskSorted.getid() + ", не удалось создать задачу!");
                 }
                 if (task.getStartTime().isAfter(taskSorted.getStartTime()) &&
                         task.getStartTime().isBefore(taskSorted.getEndTime())) {
-                    throw new IllegalStateException("Задачи пересекаются по времени, не удалось создать задачу!");
+                    throw new IllegalStateException("Задача пересекается по времени с задачей с id"
+                            + taskSorted.getid() + ", не удалось создать задачу!");
                 }
                 if (task.getStartTime().isEqual(taskSorted.getStartTime())) {
-                    throw new IllegalStateException("Задачи пересекаются по времени, не удалось создать задачу!");
+                    throw new IllegalStateException("Задача пересекается по времени с задачей с id"
+                            + taskSorted.getid() + ", не удалось создать задачу!");
                 }
             }
         } catch (IllegalStateException e) {
@@ -48,14 +52,20 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Subtask createSubTask(Task task, Epic epic) { // Создание поздадачи. Сабтаск возможно создать только на основе
-        Subtask subtask = new Subtask(task); // имеющегося таска. Так же он не может существовать в отрыве от Эпика
-        subtask.setid(id++);
-        subtask.setEpicId(epic.getid());
-        subTasks.put(subtask.getid(), subtask);
-        epic.setSubTasksIds(subtask.getid()); // Добавили в эпик созданый сабтаск
-        checkEpicTime(epic);
-        epics.put(epic.getid(), epic); // Перезаписали хэшмапу
-        return subtask;
+        try {
+            Subtask subtask = new Subtask(task); // имеющегося таска. Так же он не может существовать в отрыве от Эпика
+            subtask.setid(id++);
+            subtask.setEpicId(epic.getid());
+            subTasks.put(subtask.getid(), subtask);
+            epic.setSubTasksIds(subtask.getid()); // Добавили в эпик созданый сабтаск
+            checkEpicTime(epic);
+            epics.put(epic.getid(), epic); // Перезаписали хэшмапу
+            return subtask;
+        } catch (RuntimeException exception) {
+            System.out.println("Не удалось создать подзадачу!");
+            return null;
+        }
+
     }
 
     @Override
@@ -78,13 +88,13 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public void updateTask(Task task, TaskStatus status) { // Обновляем статус задачи
+    public void updateTask(Task task, TaskStatus status) throws IOException, InterruptedException { // Обновляем статус задачи
         task.setTaskStatus(status);
         tasks.put(task.getid(), task);
     }
 
     @Override
-    public void updateSubTask(Subtask subtask, TaskStatus status) { // Обновление статуса подзадачи
+    public void updateSubTask(Subtask subtask, TaskStatus status) throws IOException, InterruptedException { // Обновление статуса подзадачи
         subtask.setTaskStatus(status); // Обновляем
         subTasks.put(subtask.getid(), subtask); // Перезаписываем
         TaskStatus epicStatus = checkEpicStatus(epics.get(subtask.getEpicId())); // Проверка статуса эпика, обновления
@@ -156,7 +166,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deliteTasks() { // Удаление всех задач
+    public void deliteTasks() throws IOException, InterruptedException { // Удаление всех задач
         for (Integer id : tasks.keySet()) {
             historyManager.remove(id);
         }
@@ -165,7 +175,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deliteSubTasks() { // Удаление всех поцзадач
+    public void deliteSubTasks() throws IOException, InterruptedException { // Удаление всех поцзадач
         for (Integer id : subTasks.keySet()) {
             historyManager.remove(id);
         }
@@ -175,11 +185,12 @@ public class InMemoryTaskManager implements TaskManager {
             checkEpicStatus(epic);
             epic.setStart(null);
             epic.setEndTime(null);
+            epic.setDuration(0);
         }
     }
 
     @Override
-    public void deliteEpics() { // Удаление всех эпиков
+    public void deliteEpics() throws IOException, InterruptedException { // Удаление всех эпиков
         for (Integer id : epics.keySet()) {
             historyManager.remove(id);
         }
@@ -187,9 +198,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deliteTasksId(int id) { // Удаление задач по id
+    public void deliteTasksId(int id) throws IllegalStateException, IOException, InterruptedException { // Удаление задач по id
         if (!tasks.containsKey(id)) {
-            throw new IllegalStateException("Недопустимый id.");
+            throw new RuntimeException("Невозможно удалить задачу с id " + id + "! В менеджере есть задачи " +
+                    "со следующими id:");
         }
         for (Integer integer : tasks.keySet()) {
             if (integer == id) {
@@ -201,7 +213,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deliteSubTasksId(int id) { // Удаление подзадач по id
+    public void deliteSubTasksId(int id) throws IOException, InterruptedException { // Удаление подзадач по id
         if (!subTasks.containsKey(id)) {
             throw new IllegalStateException("Недопустимый id.");
         }
@@ -220,7 +232,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void deliteEpicsId(int id) { // Удаление эпиков по id
+    public void deliteEpicsId(int id) throws IOException, InterruptedException { // Удаление эпиков по id
         if (!epics.containsKey(id)) {
             throw new IllegalStateException("Недопустимый id.");
         }
@@ -236,7 +248,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public List<Subtask> takeEpicsTasks(Epic epic) { // Получение списка задач определнного эпика
+    public List<Subtask> takeEpicsTasks(Epic epic) { // Получение списка задач определенного эпика
         ArrayList<Subtask> takeTasks = new ArrayList<>();
         for (Integer tasksId : epic.getTasksIds()) {
             takeTasks.add(subTasks.get(tasksId));
@@ -245,24 +257,48 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTasks(int id) { // Получение таска по id
-        Task task = tasks.get(id);
-        historyManager.addTask(task); // Здесь и далее метод добавления таска в линкед список менеджера истории
-        return task;
+    public List<Subtask> takeEpicsTasksById(int id) { // Получение списка задач определенного эпика по id
+        Epic epic = epics.get(id);
+        return takeEpicsTasks(epic);
+    }
+
+    @Override
+    public Task getTasks(int id) throws IOException, InterruptedException { // Получение таска по id
+        try {
+            Task task = tasks.get(id);
+            historyManager.addTask(task); // Здесь и далее метод добавления таска в линкед список менеджера истории
+            return task;
+        } catch (RuntimeException exception) {
+            System.out.println("Запрошена задача с несуществующим id(" + id + ")! В менеджере есть задачи со следующими id:");
+            System.out.println(tasks.keySet());
+            return null;
+        }
     }
 
     @Override
     public Subtask getSubTasks(int id) { // Получение сабтаска по id
-        Subtask subtask = subTasks.get(id);
-        historyManager.addTask(subtask);
-        return subtask;
+        try {
+            Subtask subtask = subTasks.get(id);
+            historyManager.addTask(subtask);
+            return subtask;
+        } catch (RuntimeException exception) {
+            System.out.println("Запрошена подзадача с несуществующим id(" + id + ")! В менеджере есть подзадачи со следующими id:");
+            System.out.println(subTasks.keySet());
+            return null;
+        }
     }
 
     @Override
     public Epic getEpics(int id) { // Получение эпика по id
-        Epic epic = epics.get(id);
-        historyManager.addTask(epic);
-        return epic;
+        try {
+            Epic epic = epics.get(id);
+            historyManager.addTask(epic);
+            return epic;
+        } catch (RuntimeException e) {
+            System.out.println("Запрошен эпик с несуществующим id(" + id + ")! В менеджере есть эпики со следующими id:");
+            System.out.println(epics.keySet());
+            return null;
+        }
     }
 
     @Override
@@ -291,6 +327,28 @@ public class InMemoryTaskManager implements TaskManager {
         priorTasks.addAll(tasks.values());
         priorTasks.addAll(subTasks.values());
         return priorTasks;
+    }
+
+    @Override
+    public void addTask(Task task) throws IOException, InterruptedException { // Наполняем мапы задачами, полученными из файла
+        int id = 0;
+        if (task.getid() >= id) {
+            id = task.getid();
+            setId(id);
+        }
+        switch (task.getTaskType()) {
+            case TASK:
+                tasks.put(task.getid(), task);
+                break;
+            case SUBTASK:
+                subTasks.put(task.getid(), (Subtask) task);
+                int epicId = ((Subtask) task).getEpicId();
+                epics.get(epicId).setSubTasksIds(task.getid());
+                break;
+            case EPIC:
+                epics.put(task.getid(), (Epic) task);
+                break;
+        }
     }
 
     static class SortByStart implements Comparator<Task> {

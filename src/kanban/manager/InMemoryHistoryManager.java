@@ -70,7 +70,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (nodeMap.containsKey(id)) {
             removeNode(nodeMap.get(id));
         } else {
-            System.out.println("Элемента с id " + id + " в истории просмотров не найдено.");
+            return;
         }
     }
 

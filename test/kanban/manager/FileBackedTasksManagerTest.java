@@ -27,7 +27,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     }
 
     @Test
-    public void emptyTaskListTest() throws IOException { // Проверка работы по сохранению и восстановлению состояния - Пустой список задач.
+    public void emptyTaskListTest() throws IOException, InterruptedException { // Проверка работы по сохранению и восстановлению состояния - Пустой список задач.
         taskManager.deliteTasks();
         taskManager.deliteSubTasks();
         taskManager.deliteEpics();
@@ -38,7 +38,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     }
 
     @Test
-    public void notEmptyTaskListTest() throws IOException { // Проверка работы по сохранению и восстановлению состояния - Пустой список задач.
+    public void notEmptyTaskListTest() throws IOException, InterruptedException { // Проверка работы по сохранению и восстановлению состояния - Пустой список задач.
         taskManager.deliteSubTasks();
         taskManager.deliteEpics();
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -48,7 +48,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     }
 
     @Test
-    public void historyListTest() throws IOException { // Проверка работы по сохранению и восстановлению состояния - Не пустой список истории.
+    public void historyListTest() throws IOException, InterruptedException { // Проверка работы по сохранению и восстановлению состояния - Не пустой список истории.
         taskManager.getTasks(1);
         taskManager.getEpics(3);
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -63,7 +63,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
         assertEquals("1, 3, ", history, "История считана неверно.");
     }
     @Test
-    public void emptyHistoryListTest() throws IOException { // Проверка работы по сохранению и восстановлению состояния - Пустой список истории.
+    public void emptyHistoryListTest() throws IOException, InterruptedException { // Проверка работы по сохранению и восстановлению состояния - Пустой список истории.
         taskManager.getTasks(1);
         taskManager.getEpics(3);
         taskManager.clearHistory();

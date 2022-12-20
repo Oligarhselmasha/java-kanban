@@ -18,19 +18,20 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    @Override
+    public void addTask(Task task) throws IOException, InterruptedException {
+        super.addTask(task);
+        save();
+    }
+
     public FileBackedTasksManager loadFromFile(File file) { // Получаем информацию из файла
         final FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(file);
-        try { // Создали ридер
+        try {
             List<String> tasksAndHistory = Files.readAllLines(file.toPath());
             for (int i = 1; i <= tasksAndHistory.size(); i++) {
-                int generatedId = 0;
                 if (!tasksAndHistory.get(i).isEmpty()) {
                     Task task = CSVTaskFormat.fromString(tasksAndHistory.get(i));
                     addTask(task);
-                    if (task.getid() > generatedId) {
-                        generatedId = task.getid();
-                        super.setId(generatedId);
-                    }
                     continue;
                 }
                 for (Integer id : subTasks.keySet()) { // Узнаем у каждого сабтаска к какому эпику он относится
@@ -54,7 +55,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Критическая ошибка");
         }
         return fileBackedTasksManager;
@@ -78,20 +79,6 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
 
         } catch (IOException e) {
             System.out.println("Ошибка записи в файл.");
-        }
-    }
-
-    public void addTask(Task task) { // Наполняем мапы задачами, полученными из файла
-        switch (task.getTaskType()) {
-            case TASK:
-                tasks.put(task.getid(), task);
-                break;
-            case SUBTASK:
-                subTasks.put(task.getid(), (Subtask) task);
-                break;
-            case EPIC:
-                epics.put(task.getid(), (Epic) task);
-                break;
         }
     }
 
@@ -123,55 +110,55 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateTask(Task task, TaskStatus status) {
+    public void updateTask(Task task, TaskStatus status) throws IOException, InterruptedException {
         super.updateTask(task, status);
         save();
     }
 
     @Override
-    public void updateSubTask(Subtask subtask, TaskStatus status) {
+    public void updateSubTask(Subtask subtask, TaskStatus status) throws IOException, InterruptedException {
         super.updateSubTask(subtask, status);
         save();
     }
 
     @Override
-    public void deliteTasks() {
+    public void deliteTasks() throws IOException, InterruptedException {
         super.deliteTasks();
         save();
     }
 
     @Override
-    public void deliteSubTasks() {
+    public void deliteSubTasks() throws IOException, InterruptedException {
         super.deliteSubTasks();
         save();
     }
 
     @Override
-    public void deliteEpics() {
+    public void deliteEpics() throws IOException, InterruptedException {
         super.deliteEpics();
         save();
     }
 
     @Override
-    public void deliteTasksId(int id) {
+    public void deliteTasksId(int id) throws IOException, InterruptedException {
         super.deliteTasksId(id);
         save();
     }
 
     @Override
-    public void deliteSubTasksId(int id) {
+    public void deliteSubTasksId(int id) throws IOException, InterruptedException {
         super.deliteSubTasksId(id);
         save();
     }
 
     @Override
-    public void deliteEpicsId(int id) {
+    public void deliteEpicsId(int id) throws IOException, InterruptedException {
         super.deliteEpicsId(id);
         save();
     }
 
     @Override
-    public Task getTasks(int id) {
+    public Task getTasks(int id) throws IOException, InterruptedException {
         Task task = super.getTasks(id);
         save();
         return task;
