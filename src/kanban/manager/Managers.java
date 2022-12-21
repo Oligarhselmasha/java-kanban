@@ -18,10 +18,7 @@ public class Managers {
     }
     public static Gson getGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
-//        return gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter()).create();
         return gsonBuilder.create();
     }
-
-    final static Gson gson = getGson();
 }
 

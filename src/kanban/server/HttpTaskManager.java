@@ -1,6 +1,7 @@
 package kanban.server;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import kanban.manager.*;
 import kanban.tasks.Subtask;
 import kanban.tasks.Task;
@@ -9,18 +10,19 @@ import kanban.tasks.TaskStatus;
 import java.io.File;
 import java.io.IOException;
 
+
 public class HttpTaskManager extends FileBackedTasksManager {
 
-    KVTaskClient kvTaskClient;
+    public KVTaskClient kvTaskClient;
     private final String key = "id1";
-//    Gson gsonTask = Managers.getGson();
 
+    public static Gson gsonManager;
 
     public HttpTaskManager(File file) throws IOException, InterruptedException {
         super(file);
         kvTaskClient = new KVTaskClient();
+        gsonManager = new GsonBuilder().registerTypeAdapter(HttpTaskManager.class, new ManagerAdapter()).create();
     }
-
 
     @Override
     public void deliteTasks() throws IOException, InterruptedException {
@@ -75,10 +77,9 @@ public class HttpTaskManager extends FileBackedTasksManager {
     @Override
     public Task getTasks(int id) throws IOException, InterruptedException {
         Task task = super.getTasks(id);
-//        saveToServer();
+        saveToServer();
         return task;
     }
-
 
     @Override
     public void addTask(Task task) throws IOException, InterruptedException {
@@ -87,7 +88,23 @@ public class HttpTaskManager extends FileBackedTasksManager {
     }
 
     private void saveToServer() throws IOException, InterruptedException {
-        String httpTaskManager = Managers.getGson().toJson(this, HttpTaskManager.class);
+        String httpTaskManager = gsonManager.toJson(this);
         kvTaskClient.put(key, httpTaskManager);
     }
+
+    @Override
+    public String toString() {
+        return "HttpTaskManager{" +
+                "kvTaskClient=" + kvTaskClient +
+                ", key='" + key + '\'' +
+                ", id=" + id +
+                ", tasks=" + tasks +
+                ", subTasks=" + subTasks +
+                ", epics=" + epics +
+                ", historyManager=" + historyManager +
+                ", priorTasks=" + priorTasks +
+                '}';
+    }
 }
+
+

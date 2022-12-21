@@ -15,7 +15,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        /* Тестировать на порту 8881*/
+        /* Тестировать на порту 8883*/
 
         new KVServer().start();
 

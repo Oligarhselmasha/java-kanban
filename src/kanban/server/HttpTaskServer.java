@@ -1,11 +1,7 @@
 package kanban.server;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import kanban.manager.Managers;
@@ -15,20 +11,15 @@ import kanban.tasks.Epic;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.InetSocketAddress;
-import java.net.http.HttpRequest;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
+
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class HttpTaskServer {
 
-    public static final int PORT = 8881;
-    private final Gson gson;
+    private static final int PORT = 8883;
+    private Gson gson;
     private final TaskManager taskManager;
 
     public HttpTaskServer(TaskManager taskManager) throws IOException {
@@ -91,8 +82,13 @@ public class HttpTaskServer {
                         sendText(exchange, response);
                         return;
                     }
-                    if (path.equals("")) {
+                    if (path.equals("/tasks/")) {
                         String response = gson.toJson(taskManager.getPrioritizedTasks());
+                        sendText(exchange, response);
+                        return;
+                    }
+                    if (path.equals("/tasks/history/")) {
+                        String response = gson.toJson(taskManager.getHistory());
                         sendText(exchange, response);
                     }
                     break;
@@ -144,11 +140,11 @@ public class HttpTaskServer {
         }
     }
 
-    private void sendText(HttpExchange h, String text) throws IOException {
+    private void sendText(HttpExchange httpExchange , String text) throws IOException {
         byte[] resp = text.getBytes(UTF_8);
-        h.getResponseHeaders().add("Content-Type", "application/json");
-        h.sendResponseHeaders(200, resp.length);
-        h.getResponseBody().write(resp);
+        httpExchange.getResponseHeaders().add("Content-Type", "application/json");
+        httpExchange.sendResponseHeaders(200, resp.length);
+        httpExchange.getResponseBody().write(resp);
     }
 
     private int parsePathId(String path) {
@@ -160,18 +156,5 @@ public class HttpTaskServer {
     }
 
 }
-class LocalDateTimeAdapter extends TypeAdapter<LocalDate> {
-    private static final DateTimeFormatter formatterWriter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-    private static final DateTimeFormatter formatterReader = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-    @Override
-    public void write(final JsonWriter jsonWriter, final LocalDate localDateTime) throws IOException {
-        jsonWriter.value(localDateTime.format(formatterWriter));
-    }
-
-    @Override
-    public LocalDate read(final JsonReader jsonReader) throws IOException, IOException {
-        return LocalDate.parse(jsonReader.nextString(), formatterReader);
-    }
-}
 
