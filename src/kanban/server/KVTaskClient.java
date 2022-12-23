@@ -9,13 +9,15 @@ import java.net.http.HttpResponse;
 public class KVTaskClient {
     private final String uri;
     private final String apiToken;
-    private final int PORT = 8882;
+    private final int PORT;
 
 
 
-    public KVTaskClient() throws IOException, InterruptedException {
+    public KVTaskClient(int port) throws IOException, InterruptedException {
+        this.PORT = port;
         this.uri = "http://localhost:" + PORT + "/";
         this.apiToken = register(uri);
+
     }
 
     private String register(String uri) throws IOException, InterruptedException {
@@ -32,7 +34,7 @@ public class KVTaskClient {
         }
     }
 
-    public String load(String uri, String key) throws IOException, InterruptedException {
+    public String load(String key) throws IOException, InterruptedException {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             String uriLoad = String.format("%sload/%s?API_TOKEN=%s", uri, key, apiToken);

@@ -61,7 +61,7 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
         return fileBackedTasksManager;
     }
 
-    public void save() {
+    public void save() throws IOException, InterruptedException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("ID задачи, Тип, Название, Статус, Описание, Начало, Продолжительность, " +
                     "Окончание, Эпик подзадачи\n");
@@ -83,28 +83,28 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Task createTask(String title, String description, LocalDateTime startTime, long duration) {
+    public Task createTask(String title, String description, LocalDateTime startTime, long duration) throws IOException, InterruptedException {
         Task task = super.createTask(title, description, startTime, duration);
         save();
         return task;
     }
 
     @Override
-    public Subtask createSubTask(Task task, Epic epic) {
+    public Subtask createSubTask(Task task, Epic epic) throws IOException, InterruptedException {
         Subtask subtask = super.createSubTask(task, epic);
         save();
         return subtask;
     }
 
     @Override
-    public Epic createEpic(String title, String description) {
+    public Epic createEpic(String title, String description) throws IOException, InterruptedException {
         Epic epic = super.createEpic(title, description);
         save();
         return epic;
     }
 
     @Override
-    public void add(Epic epic, Subtask subtask) {
+    public void add(Epic epic, Subtask subtask) throws IOException, InterruptedException {
         super.add(epic, subtask);
         save();
     }
@@ -165,21 +165,21 @@ public class FileBackedTasksManager extends InMemoryTaskManager {
     }
 
     @Override
-    public Subtask getSubTasks(int id) {
+    public Subtask getSubTasks(int id) throws IOException, InterruptedException {
         Subtask subtask = super.getSubTasks(id);
         save();
         return subtask;
     }
 
     @Override
-    public Epic getEpics(int id) {
+    public Epic getEpics(int id) throws IOException, InterruptedException {
         Epic epic = super.getEpics(id);
         save();
         return epic;
     }
 
     @Override
-    public void clearHistory() {
+    public void clearHistory() throws IOException, InterruptedException {
         super.clearHistory();
         save();
     }

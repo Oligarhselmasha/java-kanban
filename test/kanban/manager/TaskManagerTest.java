@@ -21,7 +21,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected Subtask subtask2;
 
 
-    protected void initTasks() { // Инициализируем таски
+    protected void initTasks() throws IOException, InterruptedException { // Инициализируем таски
         task1 = taskManager.createTask("Test task", "Test task description",
                 LocalDateTime.of(2022, 12, 9, 12, 0), 30); // id 1
         task2 = taskManager.createTask("Test task", "Test task description",
@@ -82,7 +82,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createSubTask() { // Тест на проверку создания подзадачи
+    void createSubTask() throws IOException, InterruptedException { // Тест на проверку создания подзадачи
         Subtask subtaskNew = taskManager.createSubTask(task1, epic);
         Subtask savedSubtask = taskManager.getSubTasks(subtaskNew.getid());
         assertEquals(subtaskNew, savedSubtask, "Задачи не совпадают");
@@ -94,7 +94,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void createEpic() { // Тест на проверку создания эпика
+    void createEpic() throws IOException, InterruptedException { // Тест на проверку создания эпика
         Epic epicNew = taskManager.createEpic("Тестовый эпик", "Тестовый эпик");
         Epic savedEpic = taskManager.getEpics(epicNew.getid());
         assertEquals(epicNew, savedEpic, "Задачи не совпадают");
@@ -106,7 +106,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void add() { // Тест на проверку добавления подзадачи в эпик
+    void add() throws IOException, InterruptedException { // Тест на проверку добавления подзадачи в эпик
         Subtask subtaskNew = taskManager.createSubTask(task1, epic);
         List<Subtask> subtasks = taskManager.takeEpicsTasks(epic);
         assertEquals(3, subtasks.size(), "Неверное количество задач");
@@ -223,14 +223,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void getSubTasks() {
+    void getSubTasks() throws IOException, InterruptedException {
         Subtask subtaskNew = taskManager.getSubTasks(4);
         assertEquals(subtask1, subtaskNew, "СабТаск не сохранен в менеджере");
 
     }
 
     @Test
-    void getEpics() {
+    void getEpics() throws IOException, InterruptedException {
         Epic epicNew = taskManager.getEpics(3);
         assertEquals(epic, epicNew, "Эпик не сохранен в менеджере");
 

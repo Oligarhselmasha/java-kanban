@@ -20,7 +20,7 @@ public class InMemoryTaskManager implements TaskManager {
 
 
     @Override
-    public Task createTask(String title, String description, LocalDateTime startTime, long duration) { // Создание таска
+    public Task createTask(String title, String description, LocalDateTime startTime, long duration) throws IOException, InterruptedException { // Создание таска
         getPrioritizedTasks();
         Task task = new Task(title, description, startTime, duration);
         try {
@@ -51,7 +51,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask createSubTask(Task task, Epic epic) { // Создание поздадачи. Сабтаск возможно создать только на основе
+    public Subtask createSubTask(Task task, Epic epic) throws IOException, InterruptedException { // Создание поздадачи. Сабтаск возможно создать только на основе
         try {
             Subtask subtask = new Subtask(task); // имеющегося таска. Так же он не может существовать в отрыве от Эпика
             subtask.setid(id++);
@@ -69,7 +69,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic createEpic(String title, String description) { // Создание Эпика - задача, которая может содержать в себе
+    public Epic createEpic(String title, String description) throws IOException, InterruptedException { // Создание Эпика - задача, которая может содержать в себе
         Epic epic = new Epic(title, description); // подзадачи. Выполнение эпика возможно только при выполнении входящих
         epic.setid(id++); // в него подзадач
         epic.setDescription(description);
@@ -78,7 +78,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void add(Epic epic, Subtask subtask) { // Добавление в ЭПИК подзадач
+    public void add(Epic epic, Subtask subtask) throws IOException, InterruptedException { // Добавление в ЭПИК подзадач
         subtask.setEpicId(epic.getid()); // Сообщаем к какому эпику относится подзадача
         epic.setSubTasksIds(subtask.getid()); // Добавление подзадачи в эпик
         TaskStatus status = checkEpicStatus(epic); // Проверка статуса
@@ -276,7 +276,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask getSubTasks(int id) { // Получение сабтаска по id
+    public Subtask getSubTasks(int id) throws IOException, InterruptedException { // Получение сабтаска по id
         try {
             Subtask subtask = subTasks.get(id);
             historyManager.addTask(subtask);
@@ -289,7 +289,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Epic getEpics(int id) { // Получение эпика по id
+    public Epic getEpics(int id) throws IOException, InterruptedException { // Получение эпика по id
         try {
             Epic epic = epics.get(id);
             historyManager.addTask(epic);
@@ -307,7 +307,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public void clearHistory() {
+    public void clearHistory() throws IOException, InterruptedException {
         historyManager.clearHistory();
     }
 
@@ -349,6 +349,18 @@ public class InMemoryTaskManager implements TaskManager {
                 epics.put(task.getid(), (Epic) task);
                 break;
         }
+    }
+
+    public Map<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    public Map<Integer, Subtask> getSubTasks() {
+        return subTasks;
+    }
+
+    public Map<Integer, Epic> getEpics() {
+        return epics;
     }
 
     static class SortByStart implements Comparator<Task> {

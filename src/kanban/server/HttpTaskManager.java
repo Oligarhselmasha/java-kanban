@@ -2,108 +2,89 @@ package kanban.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import kanban.manager.*;
-import kanban.tasks.Subtask;
-import kanban.tasks.Task;
-import kanban.tasks.TaskStatus;
+import kanban.tasks.*;
 
-import java.io.File;
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.List;
 
 public class HttpTaskManager extends FileBackedTasksManager {
 
-    public KVTaskClient kvTaskClient;
-    private final String key = "id1";
+    private KVTaskClient kvTaskClient;
 
-    public static Gson gsonManager;
+    private static Gson gsonManager;
 
-    public HttpTaskManager(File file) throws IOException, InterruptedException {
-        super(file);
-        kvTaskClient = new KVTaskClient();
+    public HttpTaskManager(int port) throws IOException, InterruptedException {
+        this(port, false);
+    }
+
+    public HttpTaskManager(int port, boolean loads) throws IOException, InterruptedException {
+        super(null);
+        kvTaskClient = new KVTaskClient(port);
         gsonManager = new GsonBuilder().registerTypeAdapter(HttpTaskManager.class, new ManagerAdapter()).create();
+        if (loads) {
+            load();
+        }
+    }
+
+    protected void addTasks(List<Task> tasks) {
+        int id = 0;
+        for (Task task : tasks) {
+            TaskType type = task.getTaskType();
+            if (task.getid() > id) {
+                id = task.getid();
+            }
+            switch (type) {
+                case TASK:
+                    this.tasks.put(id, task);
+                    break;
+                case SUBTASK:
+                    this.subTasks.put(id, (Subtask) task);
+                    break;
+                case EPIC:
+                    this.epics.put(id, (Epic) task);
+                    break;
+            }
+        }
+        getPrioritizedTasks();
+    }
+
+    public void load() throws IOException, InterruptedException {
+        ArrayList<Task> tasks = gsonManager.fromJson(kvTaskClient.load("tasks"), new TypeToken<ArrayList<Task>>() {
+        }.getType());
+        addTasks(tasks);
+
+        ArrayList<Task> subtasks = gsonManager.fromJson(kvTaskClient.load("subtasks"), new TypeToken<ArrayList<Subtask>>() {
+        }.getType());
+        addTasks(subtasks);
+
+        ArrayList<Task> epics = gsonManager.fromJson(kvTaskClient.load("epics"), new TypeToken<ArrayList<Epic>>() {
+        }.getType());
+        addTasks(epics);
+
+        ArrayList<Task> history = gsonManager.fromJson(kvTaskClient.load("history"), new TypeToken<ArrayList<Task>>() {
+        }.getType());
+
+        for (Task task : history) {
+            historyManager.addTask(task);
+        }
     }
 
     @Override
-    public void deliteTasks() throws IOException, InterruptedException {
-        super.deliteTasks();
-        saveToServer();
-    }
+    public void save() throws IOException, InterruptedException {
+        String jsonTasks = gsonManager.toJson(new ArrayList<>(tasks.values()));
+        kvTaskClient.put("tasks", jsonTasks);
 
-    @Override
-    public void deliteSubTasks() throws IOException, InterruptedException {
-        super.deliteSubTasks();
-        saveToServer();
-    }
+        String jsonSubtasks = gsonManager.toJson(new ArrayList<>(subTasks.values()));
+        kvTaskClient.put("subtasks", jsonSubtasks);
 
-    @Override
-    public void deliteEpics() throws IOException, InterruptedException {
-        super.deliteEpics();
-        saveToServer();
-    }
+        String jsonEpics = gsonManager.toJson(new ArrayList<>(epics.values()));
+        kvTaskClient.put("epics", jsonEpics);
 
-    @Override
-    public void deliteTasksId(int id) throws IllegalStateException, IOException, InterruptedException {
-        super.deliteTasksId(id);
-        saveToServer();
-    }
-
-    @Override
-    public void deliteSubTasksId(int id) throws IOException, InterruptedException {
-        super.deliteSubTasksId(id);
-        saveToServer();
-    }
-
-    @Override
-    public void deliteEpicsId(int id) throws IOException, InterruptedException {
-        super.deliteEpicsId(id);
-        saveToServer();
-    }
-
-
-    @Override
-    public void updateTask(Task task, TaskStatus status) throws IOException, InterruptedException {
-        super.updateTask(task, status);
-        saveToServer();
-    }
-
-    @Override
-    public void updateSubTask(Subtask subtask, TaskStatus status) throws IOException, InterruptedException {
-        super.updateSubTask(subtask, status);
-        saveToServer();
-    }
-
-
-    @Override
-    public Task getTasks(int id) throws IOException, InterruptedException {
-        Task task = super.getTasks(id);
-        saveToServer();
-        return task;
-    }
-
-    @Override
-    public void addTask(Task task) throws IOException, InterruptedException {
-        super.addTask(task);
-        saveToServer();
-    }
-
-    private void saveToServer() throws IOException, InterruptedException {
-        String httpTaskManager = gsonManager.toJson(this);
-        kvTaskClient.put(key, httpTaskManager);
-    }
-
-    @Override
-    public String toString() {
-        return "HttpTaskManager{" +
-                "kvTaskClient=" + kvTaskClient +
-                ", key='" + key + '\'' +
-                ", id=" + id +
-                ", tasks=" + tasks +
-                ", subTasks=" + subTasks +
-                ", epics=" + epics +
-                ", historyManager=" + historyManager +
-                ", priorTasks=" + priorTasks +
-                '}';
+        String jsonHistory = gsonManager.toJson(getHistory());
+        kvTaskClient.put("history", jsonHistory);
     }
 }
 

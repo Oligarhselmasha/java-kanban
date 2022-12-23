@@ -4,13 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import kanban.server.HttpTaskManager;
 
-import java.io.File;
 import java.io.IOException;
 
 
 public class Managers {
     public static TaskManager getDefault() throws IOException, InterruptedException {
-        return new HttpTaskManager(new File("resources/task.csv"));
+        return new HttpTaskManager(8882);
     }
 
     public static HistoryManager getDefaultHistory() {

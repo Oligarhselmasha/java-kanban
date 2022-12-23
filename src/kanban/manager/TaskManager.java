@@ -8,19 +8,18 @@ import kanban.tasks.TaskStatus;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public interface TaskManager {
 //    Task createTask(String title, String description);
 
-    Task createTask(String title, String description, LocalDateTime startTime, long duration);
+    Task createTask(String title, String description, LocalDateTime startTime, long duration) throws IOException, InterruptedException;
 
-    Subtask createSubTask(Task task, Epic epic);
+    Subtask createSubTask(Task task, Epic epic) throws IOException, InterruptedException;
 
-    Epic createEpic(String title, String description);
+    Epic createEpic(String title, String description) throws IOException, InterruptedException;
 
-    void add(Epic epic, Subtask subtask);
+    void add(Epic epic, Subtask subtask) throws IOException, InterruptedException;
 
     void updateTask(Task task, TaskStatus status) throws IOException, InterruptedException;
 
@@ -50,13 +49,13 @@ public interface TaskManager {
 
     Task getTasks(int id) throws IOException, InterruptedException;
 
-    Subtask getSubTasks(int id);
+    Subtask getSubTasks(int id) throws IOException, InterruptedException;
 
-    Epic getEpics(int id);
+    Epic getEpics(int id) throws IOException, InterruptedException;
 
     List<Task> getHistory();
 
-    void clearHistory ();
+    void clearHistory () throws IOException, InterruptedException;
 
     void setId(int id);
 

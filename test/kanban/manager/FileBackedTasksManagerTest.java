@@ -14,7 +14,7 @@ class FileBackedTasksManagerTest extends TaskManagerTest<FileBackedTasksManager>
     private File file;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException, InterruptedException {
         file = new File("resources/test.csv"); // В начале каждого теста создается новый файл
         taskManager = new FileBackedTasksManager(file); // Который является полем нового менеджера
         initTasks(); // Инициализируем таски
