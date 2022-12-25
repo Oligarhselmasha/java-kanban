@@ -27,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
-    KVServer kvServer;
-    HttpTaskServer httpTaskServer;
-    HttpClient client = HttpClient.newHttpClient();
+    private KVServer kvServer;
+    private HttpTaskServer httpTaskServer;
+    private HttpClient client = HttpClient.newHttpClient();
 
-    String urlBase = "http://localhost:8883/";
+    private final String URLBASE = "http://localhost:8883/";
 
-    static Gson gson;
+    private static Gson gson;
 
     @BeforeAll
     static void setUpKVServer() throws IOException {
@@ -44,9 +44,9 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
     void setUp() throws IOException, InterruptedException {
         this.kvServer = new KVServer();
         kvServer.start();
-        taskManager = new HttpTaskManager(8882); // Который является полем нового менеджера
+        taskManager = new HttpTaskManager(8882); // Здесь порт KVServer
         initTasks();
-        this.httpTaskServer = new HttpTaskServer(taskManager, 8883);
+        this.httpTaskServer = new HttpTaskServer(taskManager, 8883); // Здесь порт HttpTaskServer
     }
 
     @AfterEach
@@ -57,7 +57,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void deliteTasks() {
-        URI url = URI.create(urlBase + "tasks/task/");
+        URI url = URI.create(URLBASE + "tasks/task/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
@@ -74,7 +74,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void deliteSubTasksId() {
-        URI url = URI.create(urlBase + "tasks/subtask/?id=4");
+        URI url = URI.create(URLBASE + "tasks/subtask/?id=4");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .DELETE()
@@ -91,7 +91,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void getTasks() {
-        URI url = URI.create(urlBase + "tasks/task/?id=1");
+        URI url = URI.create(URLBASE + "tasks/task/?id=1");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -108,7 +108,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void getSubTasks() {
-        URI url = URI.create(urlBase + "tasks/subtask/?id=4");
+        URI url = URI.create(URLBASE + "tasks/subtask/?id=4");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -125,7 +125,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void getEpics() {
-        URI url = URI.create(urlBase + "tasks/epic/?id=3");
+        URI url = URI.create(URLBASE + "tasks/epic/?id=3");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -143,16 +143,25 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void takeTasks() {
-        URI url = URI.create("http://localhost:8883/tasks/task/");
+        URI url = URI.create(URLBASE + "tasks/task/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
                 .build();
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            ArrayList<Task> testTasks = gson.fromJson(response.body(), new TypeToken<ArrayList<Task>>() {
+            }.getType());
+            assertEquals(2, testTasks.size(), "Количество полученных задач не соответствуют менеджеру");
+        } catch (IOException | InterruptedException e) { // обрабатываем ошибки отправки запроса
+            System.out.println("Во время выполнения запроса возникла ошибка.\n" +
+                    "Проверьте, пожалуйста, адрес и повторите попытку.");
+        }
     }
 
     @Test
     void takeSubTasks() {
-        URI url = URI.create(urlBase + "tasks/subtask/");
+        URI url = URI.create(URLBASE + "tasks/subtask/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -170,7 +179,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void takeEpics() {
-        URI url = URI.create(urlBase + "tasks/epic/");
+        URI url = URI.create(URLBASE + "tasks/epic/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -188,7 +197,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void takeEpicsTasks() {
-        URI url = URI.create(urlBase + "tasks/subtask/epic/?id=3");
+        URI url = URI.create(URLBASE + "tasks/subtask/epic/?id=3");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -208,7 +217,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
     void getHistory() throws IOException, InterruptedException {
         taskManager.getTasks(task1.getid());
         taskManager.getTasks(task2.getid());
-        URI url = URI.create(urlBase + "tasks/history/");
+        URI url = URI.create(URLBASE + "tasks/history/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
@@ -228,7 +237,7 @@ class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager> {
 
     @Test
     void getPrioritizedTasks() {
-        URI url = URI.create(urlBase + "tasks/");
+        URI url = URI.create(URLBASE + "tasks/");
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(url)
                 .GET()
